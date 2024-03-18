@@ -1,0 +1,75 @@
+﻿@model SimBotUltraSummarizer.ViewModels.Pager
+
+@{ 
+    var pageParam = "page";
+    var queryString = this.Context.Request.Query.ToNameValueCollection();
+}
+
+<div class="row pagination-and-options-container @(Model.CssClass)">
+
+    <div class="col-auto mb-2">
+        <ul class="pagination pagination-sm my-0">
+            <li class="page-item @(Model.Page > 1 ? "" : "disabled d-none")">
+                <a href="@(Model.Page > 1 ? Url.Action(Url.CurrentAction(), null, queryString: queryString.AddOrSet(pageParam, 1.ToString())) : "javascript:void(0)")" class="page-link"><i class="fas fa-angle-double-left"></i></a>
+            </li>
+
+            <li class="page-item @(Model.Page > 1 ? "" : "disabled d-none")">
+                <a href="@(Model.Page > 1 ? Url.Action(Url.CurrentAction(), null, queryString: queryString.AddOrSet(pageParam, (Model.Page - 1).ToString())) : "javascript:void(0)")" class="page-link"><i class="fas fa-angle-left"></i></a>
+            </li>
+
+            @if (Model.DisplayedPages.First() > 1)
+            {
+                <li class="page-item disabled d-none d-md-inline-block">
+                    <a class="border-top-0 border-bottom-0 page-link bg-transparent" href="javascript:void(0)">...</a>
+                </li>
+            }
+
+            @foreach (var page in Model.DisplayedPages)
+            {
+                <li class="page-item @(Model.Page == page ? "active" : "") @(Math.Abs(Model.Page - page) > (Model.Page == 1 || Model.Page == Model.PagesCount ? 2 : 1) ? "d-none d-md-inline-block" : "")">
+                    <a href="@Url.Action(Url.CurrentAction(), null, queryString: queryString.AddOrSet(pageParam, page.ToString()))" class="page-link">@(page)</a>
+                </li>
+            }
+
+            @if (Model.DisplayedPages.Last() < Model.PagesCount)
+            {
+                <li class="page-item disabled d-none d-md-inline-block">
+                    <a class="border-top-0 border-bottom-0 page-link bg-transparent" href="javascript:void(0)">...</a>
+                </li>
+            }
+
+            <li class="page-item @(Model.Page < Model.PagesCount ? "" : "disabled d-none")">
+                <a href="@(Model.Page < Model.PagesCount ? Url.Action(Url.CurrentAction(), null, queryString: queryString.AddOrSet(pageParam, (Model.Page + 1).ToString())) : "javascript:void(0)")" class="page-link"><i class="fas fa-angle-right"></i></a>
+            </li>
+
+            <li class="page-item @(Model.Page < Model.PagesCount ? "" : "disabled d-none")">                
+                <a href="@(Model.Page < Model.PagesCount ? Url.Action(Url.CurrentAction(), null, queryString: queryString.AddOrSet(pageParam, (Model.PagesCount).ToString())) : "javascript:void(0)")" class="page-link"><i class="fas fa-angle-double-right"></i></a>
+            </li>
+        </ul>
+    </div>
+
+    @if (Model.PageSizes.HasItems())
+    {        
+        <div class="col-auto mb-2 pl-md-0">
+            <div class="dropdown">
+                <button type="button" class="btn btn-page-size btn-no-outline btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Show @Model.PageSize <span class="caret"></span>
+                </button>
+
+                <div class="dropdown-menu mb-2">
+                    @foreach (var item in Model.PageSizes)
+                    {
+                        <a class="dropdown-item" href="@Url.Action(Url.CurrentAction(), null, queryString: this.Context.Request.Query.ToNameValueCollection().RemoveIfExists("page", ignoreCase: true).AddOrSet("rowCount", item.ToString(), ignoreCase: true))">@item</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.ShowCreateButton)
+    {
+        <div class="col-auto mb-2">
+            @Html.ActionLink("Create", "Create", Model.CreateButtonRouteValues, new { @class = "btn btn-sm btn-info" })
+        </div>
+    }
+</div>

@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SimBotUltraSummarizer</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SimBotUltraSummarizer.styles.css" asp-append-version="true" />
+    <link href="~/fonts/fontawesome-6.5.1/css/all.min.css" rel="stylesheet" />
+</head>
+<script src="~/lib/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+
+
+<body>
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - SimBotUltraSummarizer - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/js/jquery-ajax-json.js?v=@ViewBag.BuildVersion"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/jquery-ajax-json.js"></script>
+    <script src="~/lib/vuejs-3.2.47/vue.global.js"></script>
+    <link href="~/lib/flatpickr-4.6.13/flatpickr.min.css" rel="stylesheet" />
+    <script src="~/lib/flatpickr-4.6.13/flatpickr.min.js"></script>
+    <script src="~/lib/dayjs-1.11.5/dayjs.min.js"></script>
+    <script src="~/lib/dayjs-1.11.5/plugins/utc.min.js"></script>
+    <script src="~/lib/dayjs-1.11.5/plugins/duration.min.js"></script>
+    <script src="~/lib/highcharts-11.1.0/highcharts.js"></script>
+    <script src="~/lib/highcharts-11.1.0/modules/exporting.js"></script>
+    <script src="~/lib/highcharts-11.1.0/modules/no-data-to-display.js"></script>
+    <script src="~/lib/highcharts-11.1.0/modules/sankey.js"></script>
+    <script src="~/lib/highcharts-11.1.0/modules/accessibility.js"></script>
+    <script src="~/lib/numeral-js-2.0.6/min/numeral.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,78 @@
+@model SimBotUltraSummarizer.ViewModels.SignalsSearchFormModel
+
+<form class="autosubmit mb-3" method="get">
+    <div class="row">
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="Keywords" class="form-label"></label>
+            <input asp-for="Keywords" class="form-control" title="Search in name" data-bs-toggle="tooltip" data-bs-placement="bottom" />
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="StartDate" class="form-label"></label>
+            <input asp-for="StartDate" class="form-control" />
+            <span asp-validation-for="StartDate"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="EndDate" class="form-label"></label>
+            <input asp-for="EndDate" class="form-control" />
+            <span asp-validation-for="EndDate"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="MCapFrom" class="form-label"></label>
+            <input asp-for="MCapFrom" class="form-control" title="Search in name" data-bs-toggle="tooltip" data-bs-placement="bottom" />
+            <span asp-validation-for="MCapFrom"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="MCapTo" class="form-label"></label>
+            <input asp-for="MCapTo" class="form-control" title="Search in name" data-bs-toggle="tooltip" data-bs-placement="bottom" />
+            <span asp-validation-for="MCapTo"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="TotalCallsFrom" class="form-label"></label>
+            <input asp-for="TotalCallsFrom" class="form-control" title="Search in name" data-bs-toggle="tooltip" data-bs-placement="bottom" />
+            <span asp-validation-for="TotalCallsFrom"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="TotalCallsTo" class="form-label"></label>
+            <input asp-for="TotalCallsTo" class="form-control" title="Search in name" data-bs-toggle="tooltip" data-bs-placement="bottom" />
+            <span asp-validation-for="TotalCallsTo"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label class="h6">&nbsp;</label>
+            <div>
+                <a href="@Url.Action(action: null, controller: null)" class="btn btn btn-outline-info"><i class="fas fa-times"></i></a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        flatpickr("#StartDate", {
+            dateFormat: 'Y-m-d H:i',
+            locale: { 'firstDayOfWeek': 1 },
+            allowInput: true,
+            enableTime: true,
+            time_24hr: true
+        });
+
+        flatpickr("#EndDate", {
+            dateFormat: 'Y-m-d H:i',
+            locale: { 'firstDayOfWeek': 1 },
+            allowInput: true,
+            enableTime: true,
+            time_24hr: true
+        });
+    });
+    $(function () {
+        $('form.autosubmit select, form.autosubmit input[type="checkbox"], form.autosubmit input[type="text"], form.autosubmit input[type="number"], form.autosubmit input[type="time"]').on('change', function (event) {
+            $(this).closest('form').submit();
+        });
+    });
+</script>

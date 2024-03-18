@@ -1,0 +1,10 @@
+/.vs
+/.sonarqube
+obj
+bin
+build
+build.zip
+/packages
+/Fps/*.user
+*.user
+/PowerShell.Scripts/Thumbs.db

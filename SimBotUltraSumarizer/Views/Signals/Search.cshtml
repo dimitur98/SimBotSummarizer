@@ -1,0 +1,143 @@
+﻿@model SimBotUltraSummarizer.ViewModels.SignalsSearchModel
+
+@{
+    ViewBag.Title = "Signals";
+}
+
+<h1>@ViewBag.Title (@Model.Response.TotalRecords.ToString("N0"))</h1>
+
+<partial name="SearchForm" model="Model.SearchForm" />
+@* <button type="button" id="GetSignals">Get Signals</button>
+<button type="button" id="LoadSignals">Load Signals</button>
+<button type="button" id="LoadHypeSignals">Load Hype Signals</button> *@
+
+@if (!Model.Response.Records.HasItems())
+{
+    <alert type="info">There are no signals.</alert>
+
+    return;
+}
+
+<div>
+    <div class="d-inline-block me-4">
+        <div class="mb-1">
+            <partial name="_PagedListPagerAndOptionsPartial" model="Model.ToPager(showCreateButton: false)" />
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var signal in Model.Response.Records)
+    {
+        <div class="col-12">
+            <div class="border rounded p-3 h-100">
+                <div class="col-12">
+                    <table class="table w-auto">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Address</th>
+                                <th scope="col">Pair</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@signal.Name</td>
+                                <td>@signal.Address</td>
+                                <td>@signal.Pair</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <iframe id="dextools-widget"
+                                title="DEXTools Trading Chart"
+                                width="750" height="400"
+                                src="https://www.dextools.io/widget-chart/en/ether/pe-light/@signal.Pair?theme=dark&chartType=2&chartResolution=30&drawingToolbars=true"></iframe>
+                    </div>
+                    <div class="col-3" style="max-height: 400px; overflow:auto;">
+                        <h4>Signal Data (@signal.SignalData.Count())</h4>
+                        <table class="table w-auto">
+                            <thead>
+                                <tr>
+                                    <th scope="col">MCap</th>
+                                    <th scope="col">Total Calls</th>
+                                    <th scope="col">Sell Tax</th>
+                                    <th scope="col">Buy Tax</th>
+                                    <th scope="col">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var signalData in signal.SignalData)
+                                {
+                                    <tr>
+                                        <td>@signalData.MCap</td>
+                                        <td>@signalData.TotalCalls</td>
+                                        <td>@signalData.SellTax</td>
+                                        <td>@signalData.BuyTax</td>
+                                        <td>@signalData.Date.ToWebDateFormat(showTime: true)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-3" style="max-height: 400px; overflow:auto;">
+                        <h4>Hype Alarms (@signal.HypeSignals.Count())</h4>
+                        <table class="table w-auto">
+                            <thead>
+                                <tr>
+                                    <th scope="col">MCap</th>
+                                    <th scope="col">Alarm Type</th>
+                                    <th scope="col">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var hypeSignal in signal.HypeSignals)
+                                {
+                                    <tr>
+                                        <td>@hypeSignal.MCap?.ToString("N2")</td>
+                                        <td>@hypeSignal.AlarmType</td>
+                                        <td>@hypeSignal.Date.ToWebDateFormat(showTime: true)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#GetSignals").on("click", function () {
+            $.ajaxGetJson({
+                url: @Html.Raw(Json.Serialize(Url.Action("GetSignals", "SignalsApi"))),
+                success: function (response, status, xhr) {
+                    console.log(response)
+                }
+            });
+        });
+
+        $("#LoadSignals").on("click", function () {
+            $.ajaxGetJson({
+                url: @Html.Raw(Json.Serialize(Url.Action("LoadSignals", "SignalsApi"))),
+                success: function (response, status, xhr) {
+                    console.log(response)
+                }
+            });
+        });
+
+        $("#LoadHypeSignals").on("click", function () {
+            $.ajaxGetJson({
+                url: @Html.Raw(Json.Serialize(Url.Action("LoadHypeSignals", "SignalsApi"))),
+                success: function (response, status, xhr) {
+                    console.log(response)
+                }
+            });
+        });
+    });
+</script>

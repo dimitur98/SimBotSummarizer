@@ -1,0 +1,359 @@
+﻿@model HomeModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Sim Bot Summarizer</h1>
+</div>
+
+<form asp-action="Search" enctype="multipart/form-data">
+    .
+    <div class="form-group mb-3">
+        <input class="form-control" asp-for="Files" type="file" multiple />
+    </div>
+
+    <input type="submit" value="Upload" class="btn btn-info" />
+</form>
+
+@if (Model.Signals.HasItems())
+{
+    <div id="mcaps-modal" class="modal" tabindex="-1">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="line-chart"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-info btn-cancel" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive-xxl mt-3" id="signals">
+        <div class="row">
+            <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+                <label class="form-label">Name</label>
+                <input v-model="name" class="form-control form-control-sm" />
+            </div>
+            <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+                <label class="form-label">Start Date</label>
+                <input v-model="startDate" class="form-control form-control-sm" id="StartDate" />
+            </div>
+            <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+                <label class="form-label">End Date</label>
+                <input v-model="endDate" class="form-control form-control-sm" id="EndDate" />
+            </div>
+            <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+                <label class="form-label">MCap From</label>
+                <input v-model="mCapFrom" class="form-control form-control-sm" type="number" />
+            </div>
+            <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+                <label class="form-label">Mcap To</label>
+                <input v-model="mCapTo" class="form-control form-control-sm" type="number" />
+            </div>
+            <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+                <label class="form-label">First Call</label>
+                <input v-model="firstCall" class="form-control form-control-sm" type="number" />
+            </div>
+            <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+                <input v-model="filterByStartDate" type="checkbox" class="form-check-input" />
+                <label class="form-check-label">Filter By Start Date Only</label>
+            </div>
+            <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+                <label class="form-label">Order By</label>
+                <select class="form-select form-select-sm" v-model="orderBy">
+                    <option value="date-asc">Date Asc</option>
+                    <option value="date-desc">Date Desc</option>
+                    <option value="mcap-asc">Mcap Asc</option>
+                    <option value="mcap-desc">Mcap Desc</option>
+                    <option value="reached-target">Reached Target First</option>
+                    <option value="scam-first">Scam First</option>
+                </select>
+            </div>
+        </div>
+
+        <h3>
+            <span class="me-3">Count: {{signals.length}}</span>
+            <span class="me-3">ReachedTarget: {{signals.filter(s => s.reachedTarget).length}}</span>
+            <span class="me-3">Scams: {{signals.filter(s => s.scam).length}}</span>
+        </h3>
+
+        <table class="table table-striped w-auto">
+            <thead>
+                <tr>
+                    <th scope="col">Address</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">First MCap</th>
+                    <th scope="col">Last MCap</th>
+                    <th scope="col">First Call</th>
+                    <th scope="col">Total Calls</th>
+                    <th scope="col">Reached Target</th>
+                    <th scope="col">Shiban Scam</th>
+                    <th scope="col">Notes</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr v-for="signal in signals">
+                    <td>{{ signal.address}}</td>
+                    <td>{{ signal.name}}</td>
+                    <td>{{ formatDate(signal.startDate) }}</td>
+                    <td>{{ formatDate(signal.endDate) }}</td>
+                    <td class="text-end">{{ formatNumber(signal.mCapFirst)}}</td>
+                    <td class="text-end">{{ formatNumber(signal.mCapLast) }}</td>
+                    <td class="text-end ">{{ signal.firstCall}}</td>
+                    <td class="text-end ">{{ signal.totalCalls}}</td>
+                    <td class="text-center pointer"><a v-on:click="reachedTarget(signal)" :style="{'color': signal.reachedTarget ? 'green' : ''}"><i style="font-size:30px" :class="signal.reachedTarget ? 'fa-solid' : 'fa-regular'" class="fa-star"></i></a></td>
+                    <td class="text-center pointer"><a v-on:click="scam(signal)" :style="{'color': signal.scam ? 'red' : ''}"><i style="font-size:30px" class="fa-solid fa-hand-middle-finger"></i></a></td>
+                    <td><textarea v-model="signal.notes" v-on:change="setNotes(signal, event)" rows="2"></textarea></td>
+                    <td class="pointer"><a v-on:click="openChart(signal.mCaps)">Chart</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        $(document).ready(function () {
+            Vue.createApp({
+                data() {
+                    return {
+                        allSignals: @Html.Raw(Json.Serialize(Model.Signals.Values)),
+                        signals: @Html.Raw(Json.Serialize(Model.Signals.Values)),
+                        name: undefined,
+                        startDate: undefined,
+                        endDate: undefined,
+                        mCapFrom: undefined,
+                        mCapTo: undefined,
+                        orderBy: undefined,
+                        firstCall: undefined,
+                        filterByStartDate: false
+                    }
+                },
+                mounted: function () {
+                    var self = this;
+
+                    this.startDateFlatpickr();
+                    this.endDateFlatpickr();
+
+                    this.signals.forEach(s => {
+                        var reachedTarget = localStorage.getItem(s.address + '-reached-target');
+                        var scam = localStorage.getItem(s.address + "-scam");
+                        var notes = localStorage.getItem(s.address + "-notes");
+
+                        if (reachedTarget) { s.reachedTarget = true; }
+                        if (scam) { s.scam = true; }
+                        if (notes) { s.notes = notes; }
+                        if (reachedTarget || scam || notes) { 
+                            var signal = self.allSignals.find(a => a.address == s.address); 
+
+                            signal.reachedTarget = reachedTarget;
+                            signal.scam = scam;
+                            signal.notes = notes;
+                        }
+                    })
+                },
+                watch: {
+                    name: {
+                        handler: function () {
+                            this.loadSignals()
+                        }
+                    },
+                    mCapFrom: {
+                        handler: function () {
+                            this.loadSignals()
+                        }
+                    },
+                    mCapTo: {
+                        handler: function () {
+                            this.loadSignals()
+                        }
+                    },
+                    firstCall: {
+                        handler: function () {
+                            this.loadSignals()
+                        }
+                    },
+                    filterByStartDate: {
+                        handler: function () {
+                            this.loadSignals()
+                        }
+                    },
+                    orderBy: {
+                        handler: function (newValue) {
+                            if (newValue == "date-asc") {
+                                this.signals = this.signals.sort((a, b) => dayjs(a.startDate) - dayjs(b.startDate))
+                            } else if (newValue == "date-desc") {
+                                this.signals = this.signals.sort((a, b) => dayjs(b.startDate) - dayjs(a.startDate))
+                            } else if (newValue == "mcap-asc") {
+                                this.signals = this.signals.sort((a, b) => a.mCapFirst - b.mCapFirst)
+                            } else if (newValue == "mcap-desc") {
+                                this.signals = this.signals.sort((a, b) => b.mCapFirst - a.mCapFirst)
+                            } else if (newValue == "reached-target") {
+                                this.signals = this.signals.sort((a, b) => {
+                                    if (b.reachedTarget) { return 1; }
+
+                                    return -1;
+                                });
+                            } else if (newValue == "scam-first") {
+                                this.signals = this.signals.sort((a, b) => {
+                                    if (b.scam) { return 1; }
+
+                                    return -1;
+                                });
+                            }
+                        }
+                    }
+                },
+                methods: {
+                    loadSignals() {
+                        this.signals = this.allSignals;
+
+                        if (this.name) { this.signals = this.signals.filter(s => s.name.includes(this.name)) }
+                        if (this.startDate) {
+                            if (this.filterByStartDate) {
+                                this.signals = this.signals.filter(s => dayjs(s.startDate).isAfter(dayjs(this.startDate)) || dayjs(s.startDate).isSame(dayjs(this.startDate, "day")));
+                            } else {
+                                this.signals = this.signals.filter(s => dayjs(s.endDate).isAfter(dayjs(this.startDate)) || dayjs(s.endDate).isSame(dayjs(this.startDate, "day")));
+                            }
+                        }
+                        if (this.endDate) { this.signals = this.signals.filter(s => dayjs(s.startDate).isBefore(dayjs(this.endDate)) || dayjs(s.startDate).isSame(dayjs(this.endDate, "day"))) }
+                        if (this.mCapFrom) { this.signals = this.signals.filter(s => s.mCapFirst >= this.mCapFrom); }
+                        if (this.mCapTo) { this.signals = this.signals.filter(s => s.mCapFirst <= this.mCapTo); }
+                        if (this.firstCall) { this.signals = this.signals.filter(s => s.firstCall == this.firstCall); }
+                    },
+                    startDateFlatpickr() {
+                        var self = this;
+
+                        this.flatpickr("#StartDate");
+
+                        $("#StartDate").on("change", function () {
+                            self.startDate = $(this).val()
+                            self.loadSignals()
+                        });
+                    },
+                    endDateFlatpickr() {
+                        var self = this;
+
+                        this.flatpickr("#EndDate");
+
+                        $("#EndDate").on("change", function () {
+                            self.endDate = $(this).val()
+                            self.loadSignals()
+                        });
+                    },
+                    flatpickr(element) {
+                        flatpickr(element, {
+                            dateFormat: 'Y-m-d H:i',
+                            locale: { 'firstDayOfWeek': 1 },
+                            allowInput: true,
+                            enableTime: true,
+                            time_24hr: true
+                        });
+                    },
+                    openChart(records) {
+                        records = records.sort((a, b) => {
+                            var dateA = new Date(a.date);
+                            var dateB = new Date(b.date);
+
+                            if (dateA > dateB) { return 1; }
+                            if (dateA < dateB) { return -1; }
+
+                            return 0;
+                        })
+
+                        var $modal = $("#mcaps-modal");
+                        var $modalBody = $modal.find('.modal-body');
+
+                        $modal.modal("show");
+
+                        var categories = records.map(x => new Date(x.date).valueOf());
+                        var series = [{ data: records.map(x => { return { y: x.mCapValue, totalCalls: x.totalCalls } }), name: "MCap" }];
+
+                        Highcharts.chart('line-chart', {
+                            chart: {
+                                type: 'line'
+                            },
+                            title: {
+                                text: 'MCaps'
+                            },
+                            xAxis: {
+                                labels: {
+                                    formatter: function () {
+                                        var date = new Date(this.value)
+                                        return date.getDate() + "-" + date.getMonth() + 1 + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+                                    },
+                                },
+                                categories: categories
+                            },
+                            yAxis: {
+                                title: {
+                                    text: "MCap"
+                                },
+                                labels: {
+                                    formatter: function () {
+                                        return "$" + numeral(this.value).format('0,0');
+                                    },
+                                },
+                            },
+                            tooltip: {
+                                formatter: function () {
+                                    var date = new Date(this.x);
+                                    var text = '<b>' + date.getDate() + "-" + date.getMonth() + 1 + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + '</b><br/>';
+
+                                    this.points.forEach(p => {
+                                        text += '<br/><span><span style="color:' + p.color + '">' + p.series.name + '</span>: $' + Highcharts.numberFormat(p.y, 1) + ' </span><br/><span>'+ 'Total Calls: ' + p.point.totalCalls + '</span>'
+                                    });
+
+                                    return text;
+                                },
+                                split: false,
+                                shared: true
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            series: series  
+                        });
+                    },
+                    formatDate(date) {
+                        return dayjs(date).format('DD MMM YYYY HH:mm')
+                    },
+                    formatNumber(number){
+                        return numeral(number).format('0,0');
+                    },
+                    reachedTarget(signal) {
+                        this.signals.find(s => s.address == signal.address).reachedTarget = !this.signals.find(s => s.address == signal.address).reachedTarget;
+
+                        if (this.signals.find(s => s.address == signal.address).reachedTarget) {
+                            localStorage.setItem(signal.address + '-reached-target', true);
+                        } else {
+                            localStorage.removeItem(signal.address + '-reached-target');
+                        }
+                    },
+                    scam(signal) {
+                        this.signals.find(s => s.address == signal.address).scam = !this.signals.find(s => s.address == signal.address).scam;
+
+                        if (this.signals.find(s => s.address == signal.address).scam) {
+                            localStorage.setItem(signal.address + '-scam', true);
+                        } else {
+                            localStorage.removeItem(signal.address + '-scam');
+                        }
+                    },
+                    setNotes(signal, notes) {
+                        signal.notes = event.target.value;
+
+                        localStorage.setItem(signal.address + '-notes', event.target.value);
+                    }
+                }
+            }).mount('#signals');
+        });
+    </script>
+}
+
+
