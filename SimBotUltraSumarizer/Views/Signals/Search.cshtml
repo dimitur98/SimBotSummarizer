@@ -44,9 +44,9 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>@signal.Name</td>
-                                <td>@signal.Address</td>
-                                <td>@signal.Pair</td>
+                                <td style="word-break: break-all;">@signal.Name</td>
+                                <td style="word-break: break-all;">@signal.Address</td>
+                                <td style="word-break: break-all;">@signal.Pair</td>
                             </tr>
                         </tbody>
                     </table>
@@ -154,6 +154,35 @@
 
 <script>
     $(document).ready(function () {
+        var heights = []
+        $(".dextools-container").each((i,x) => { heights.push($(x).height()) });
+
+        heights = heights.sort()
+
+        let count = 1,
+            max = 0,
+            height;
+
+        for (let i = 1; i < heights.length; ++i) {
+            if (heights[i] === heights[i - 1]) {
+                count++;
+            } else {
+                count = 1;
+            }
+            if (count > max) {
+                max = count;
+                height = heights[i];
+            }
+        }
+
+        if (height == 155) { height = 255; }
+
+        $(".dextools-container").each((i,x) => {
+            if ($(x).height() < height) {
+                $(x).height(height)
+            }
+        });
+
         $("#GetSignals").on("click", function () {
             $.ajaxGetJson({
                 url: @Html.Raw(Json.Serialize(Url.Action("GetSignals", "SignalsApi"))),
