@@ -22,6 +22,7 @@ namespace SimBotUltraSummarizer.Controllers
 
             Signals.LoadSignalData(response.Records);
             Signals.LoadHypeSignals(response.Records);
+            Signals.LoadITokenSignals(response.Records);
 
             var model = new SignalsSearchModel(searchForm)
             {

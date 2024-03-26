@@ -19,5 +19,7 @@ namespace SimBotUltraSummarizerDb.Models
         public List<SignalData> SignalData { get; set; }
 
         public List<HypeSignal> HypeSignals { get; set; }
+
+        public List<IToken> ITokens { get; set; }
     }
 }

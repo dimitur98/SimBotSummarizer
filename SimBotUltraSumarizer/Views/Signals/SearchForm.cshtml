@@ -44,6 +44,26 @@
         </div>
 
         <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="HasHypeAlarmSignal" class="form-label"></label>
+            <select class="form-select" asp-for="HasHypeAlarmSignal">
+                <option value="">--</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+            <span asp-validation-for="HasHypeAlarmSignal"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="HasITokenSignal" class="form-label"></label>
+            <select class="form-select" asp-for="HasITokenSignal">
+                <option value="">--</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+            <span asp-validation-for="HasITokenSignal"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
             <label class="h6">&nbsp;</label>
             <div>
                 <a href="@Url.Action(action: null, controller: null)" class="btn btn btn-outline-info"><i class="fas fa-times"></i></a>

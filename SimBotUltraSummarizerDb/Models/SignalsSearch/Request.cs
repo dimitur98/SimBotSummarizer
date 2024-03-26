@@ -15,5 +15,9 @@ namespace SimBotUltraSummarizerDb.Models.SignalsSearch
         public int? TotalCallsFrom { get; set; }
 
         public int? TotalCallsTo { get; set; }
+
+        public bool? HasHypeAlarmSignal { get; set; }
+
+        public bool? HasITokenSignal { get; set; }
     }
 }

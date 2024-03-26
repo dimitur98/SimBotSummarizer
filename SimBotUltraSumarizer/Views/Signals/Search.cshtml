@@ -9,7 +9,8 @@
 <partial name="SearchForm" model="Model.SearchForm" />
 @* <button type="button" id="GetSignals">Get Signals</button>
 <button type="button" id="LoadSignals">Load Signals</button>
-<button type="button" id="LoadHypeSignals">Load Hype Signals</button> *@
+<button type="button" id="LoadHypeSignals">Load Hype Signals</button>
+<button type="button" id="LoadITokenSignals">Load IToken Signals</button> *@
 
 @if (!Model.Response.Records.HasItems())
 {
@@ -29,9 +30,10 @@
 <div class="row">
     @foreach (var signal in Model.Response.Records)
     {
-        <div class="col-12">
+        <div class="col-md-12">
             <div class="border rounded p-3 h-100">
-                <div class="col-12">
+                @* Main Info *@
+                <div class="col-md-12">
                     <table class="table w-auto">
                         <thead>
                             <tr>
@@ -49,14 +51,16 @@
                         </tbody>
                     </table>
                 </div>
+                @* Dextools *@
                 <div class="row">
-                    <div class="col-6">
-                        <iframe id="dextools-widget"
+                    <div class="col-md-6 col-sm-12 dextools-container">
+                        <iframe class="dextools-widget"
                                 title="DEXTools Trading Chart"
-                                width="750" height="400"
-                                src="https://www.dextools.io/widget-chart/en/ether/pe-light/@signal.Pair?theme=dark&chartType=1&chartResolution=30&drawingToolbars=true"></iframe>
+                                width="100%" height="100%"
+                                src="https://www.dextools.io/widget-chart/en/ether/pe-light/@signal.Pair?theme=dark&chartType=2&chartResolution=30&drawingToolbars=true"></iframe>
                     </div>
-                    <div class="col-3" style="max-height: 400px; overflow:auto;">
+                    @* Signals *@
+                    <div class="col-md-3 col-sm-12" style="max-height: 400px; overflow:auto;">
                         <h4>Signal Data (@signal.SignalData.Count())</h4>
                         <table class="table w-auto">
                             <thead>
@@ -82,27 +86,64 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-3" style="max-height: 400px; overflow:auto;">
+                    @* Hype Alarms *@
+                    <div class="col-md-3 col-sm-12" style="max-height: 400px; overflow:auto;">
                         <h4>Hype Alarms (@signal.HypeSignals.Count())</h4>
-                        <table class="table w-auto">
-                            <thead>
-                                <tr>
-                                    <th scope="col">MCap</th>
-                                    <th scope="col">Alarm Type</th>
-                                    <th scope="col">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var hypeSignal in signal.HypeSignals)
-                                {
+                        @if (@signal.HypeSignals.Count() > 0)
+                        {
+                            <table class="table w-auto">
+                                <thead>
                                     <tr>
-                                        <td>@hypeSignal.MCap?.ToString("N2")</td>
-                                        <td>@hypeSignal.AlarmType</td>
-                                        <td>@hypeSignal.Date.ToWebDateFormat(showTime: true)</td>
+                                        <th scope="col">MCap</th>
+                                        <th scope="col">Alarm Type</th>
+                                        <th scope="col">Date</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach (var hypeSignal in signal.HypeSignals)
+                                    {
+                                        <tr>
+                                            <td>@hypeSignal.MCap?.ToString("N2")</td>
+                                            <td>@hypeSignal.AlarmType</td>
+                                            <td>@hypeSignal.Date.ToWebDateFormat(showTime: true)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success" role="alert">
+                                There are no hype signals for this token.
+                            </div>
+                        }
+                        <h4>IToken Signals (@signal.ITokens.Count())</h4>
+                        @if (signal.ITokens.Count() > 0)
+                        {
+                            <table class="table w-auto">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Scan</th>
+                                        <th scope="col">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var itoken in signal.ITokens)
+                                    {
+                                        <tr>
+                                            <td>@itoken.Scan</td>
+                                            <td>@itoken.Date.ToWebDateFormat(showTime: true)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success" role="alert">
+                                There are no IToken signals for this token.
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -134,6 +175,15 @@
         $("#LoadHypeSignals").on("click", function () {
             $.ajaxGetJson({
                 url: @Html.Raw(Json.Serialize(Url.Action("LoadHypeSignals", "SignalsApi"))),
+                success: function (response, status, xhr) {
+                    console.log(response)
+                }
+            });
+        });
+
+        $("#LoadITokenSignals").on("click", function () {
+            $.ajaxGetJson({
+                url: @Html.Raw(Json.Serialize(Url.Action("LoadITokenSignals", "SignalsApi"))),
                 success: function (response, status, xhr) {
                     console.log(response)
                 }

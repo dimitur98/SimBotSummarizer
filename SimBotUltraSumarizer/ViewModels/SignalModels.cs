@@ -24,6 +24,12 @@ namespace SimBotUltraSummarizer.ViewModels
         [DisplayName("Total Calls To")]
         public int? TotalCallsTo { get; set; }
 
+        [DisplayName("Has Hype Alarm")]
+        public bool? HasHypeAlarmSignal { get; set; }
+
+        [DisplayName("Has IToken")]
+        public bool? HasITokenSignal { get; set; }
+
         public Request ToSearchRequest()
         {
             var request = new Request 
@@ -33,7 +39,9 @@ namespace SimBotUltraSummarizer.ViewModels
                 MCapFrom = this.MCapFrom,
                 MCapTo = this.MCapTo,
                 TotalCallsFrom = this.TotalCallsFrom,
-                TotalCallsTo = this.TotalCallsTo
+                TotalCallsTo = this.TotalCallsTo,
+                HasHypeAlarmSignal = this.HasHypeAlarmSignal,
+                HasITokenSignal = this.HasITokenSignal
             };
 
             this.SetSearchRequest(request);

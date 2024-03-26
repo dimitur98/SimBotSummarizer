@@ -127,5 +127,32 @@ namespace SimBotUltraSummarizer.Controllers.Api
 
             return this.Ok(new {});
         }
+
+        public IActionResult LoadITokenSignals()
+        {
+            var rootPath = _hostingEnvironment.ContentRootPath; //get the root path
+
+            var fullPath = Path.Combine(rootPath, "response_itoken.json"); //combine the root path with that of our json file inside mydata directory
+
+            var jsonData = System.IO.File.ReadAllText(fullPath); //read all the content inside the file
+
+            if (string.IsNullOrWhiteSpace(jsonData)) return null; //if no data is present then return null or error if you wish
+
+            var itokens = JsonConvert.DeserializeObject<List<SimBotTelegram.Api.Ver1.Models.IToken>>(jsonData);
+
+            foreach (var item in itokens)
+            {
+                var itoken = new IToken
+                {
+                    Address = item.Address,
+                    Scan = item.Scan,
+                    Date = item.Date
+                };
+
+                ITokens.Insert(itoken);
+            }
+
+            return this.Ok(new { });
+        }
     }
 }

@@ -33,6 +33,8 @@ namespace SimBotUltraSummarizerDb.Dal
             if (request.MCapTo.HasValue) { query.Where.Add(" AND sd.mcap <= @mcapTo"); }
             if (request.TotalCallsFrom.HasValue) { query.Where.Add(" AND sd.total_calls >= @totalCallsFrom"); }
             if (request.TotalCallsTo.HasValue) { query.Where.Add(" AND sd.total_calls <= @totalCallsTo"); }
+            if (request.HasHypeAlarmSignal.HasValue) { query.Where.Add($" AND {(request.HasHypeAlarmSignal.Value ? string.Empty : "NOT")} EXISTS(SELECT * FROM hype_signal hs WHERE hs.address = s.address)"); }
+            if (request.HasITokenSignal.HasValue) { query.Where.Add($" AND {(request.HasITokenSignal.Value ? string.Empty : "NOT")} EXISTS(SELECT * FROM itoken i WHERE i.address = s.address)"); }
 
             query.Joins.Add(" LEFT JOIN signal_data sd ON sd.id = (SELECT sd2.id FROM signal_data as sd2 WHERE sd2.signal_id = s.id ORDER BY sd2.date LIMIT 1)");
 
@@ -100,6 +102,11 @@ namespace SimBotUltraSummarizerDb.Dal
         public static void LoadHypeSignals(IEnumerable<Signal> signals)
         {
             Db.LoadEntities(signals, x => x.Address, addresses => HypeSignals.GetByAddress(addresses), (signal, hypeSignals) => signal.HypeSignals = hypeSignals.Where(x => x.Address == signal.Address).ToList());
+        }
+
+        public static void LoadITokenSignals(IEnumerable<Signal> signals)
+        {
+            Db.LoadEntities(signals, x => x.Address, addresses => ITokens.GetByAddress(addresses), (signal, itokens) => signal.ITokens = itokens.Where(x => x.Address == signal.Address).ToList());
         }
     }
 }
