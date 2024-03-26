@@ -30,7 +30,7 @@ namespace SimBotUltraSummarizerDb.Dal
 
             var queryParams = new
             {
-                address = itoken.Address.Trim(),
+                address = itoken.Address.ToLower().Trim(),
                 scan = itoken.Scan,
                 date = itoken.Date
             };
