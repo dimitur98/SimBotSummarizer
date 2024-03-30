@@ -16,6 +16,9 @@ namespace SimBotTelegram.Api.Ver1.Models
         [JsonProperty("buy_tax")]
         public double? BuyTax { get; set; }
 
+        [JsonProperty("price")]
+        public double? Price { get; set; }
+
         [JsonProperty("date")]
         public DateTime Date { get; set; }
     }

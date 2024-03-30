@@ -4,6 +4,13 @@ namespace SimBotUltraSummarizerDb.Dal
 {
     public static class HypeSignals
     {
+        public static DateTime GetLastDate()
+        {
+            var sql = "SELECT `date` FROM `hype_signal` ORDER BY `date` DESC LIMIT 1";
+
+            return Db.Mapper.Query<DateTime>(sql).FirstOrDefault();
+        }
+
         public static List<HypeSignal> GetByAddress(IEnumerable<string> addresses)
         {
             var sql = @"SELECT *

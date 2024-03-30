@@ -4,6 +4,8 @@ namespace SimBotUltraSummarizerDb.Models.SignalsSearch
 {
     public class Request : BaseRequest
     {
+        public string Address { get; set; }
+
         public DateTime? StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }

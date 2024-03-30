@@ -7,6 +7,9 @@ namespace SimBotUltraSummarizerDb.Models
         [Column(Name = "id")]
         public uint Id { get; set; }
 
+        [Column(Name = "signal_id")]
+        public uint SignalId { get; set; }
+
         [Column(Name = "address")]
         public string Address { get; set; }
 
@@ -21,6 +24,9 @@ namespace SimBotUltraSummarizerDb.Models
 
         [Column(Name = "buy_tax")]
         public double? BuyTax { get; set; }
+
+        [Column(Name = "price")]
+        public double? Price { get; set; }
 
         [Column(Name = "date")]
         public DateTime Date { get; set; }

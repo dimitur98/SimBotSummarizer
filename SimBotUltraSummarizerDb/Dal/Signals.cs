@@ -7,6 +7,20 @@ namespace SimBotUltraSummarizerDb.Dal
 {
     public static class Signals
     {
+        public static List<Signal> GetDuplicates()
+        {
+            var sql = "select * from `signal` group by address having count(address) >= 2";
+
+            return Db.Mapper.Query<Signal>(sql).ToList();
+        }
+
+        public static List<Signal> GetByAddress(IEnumerable<string> addresses)
+        {
+            var sql = "select * from `signal` where address in @addresses";
+
+            return Db.Mapper.Query<Signal>(sql, param: new {addresses} ).ToList();
+        }
+
         public static Response Search(Request request)
         {
             var query = new Query
@@ -27,6 +41,7 @@ namespace SimBotUltraSummarizerDb.Dal
             query.OrderBys = new List<OrderBy>() { new OrderBy(request.SortColumn, request.SortDesc) };
 
             if (!string.IsNullOrEmpty(request.Keywords)) { query.Where.Add("AND (s.name LIKE @keywords)"); }
+            if (!string.IsNullOrEmpty(request.Address)) { query.Where.Add("AND (s.address LIKE @address)"); }
             if (request.StartDate.HasValue) { query.Where.Add(" AND  sd.date >= @startDate"); }
             if (request.EndDate.HasValue) { query.Where.Add(" AND sd.date <= @endDate"); }
             if (request.MCapFrom.HasValue) { query.Where.Add(" AND sd.mcap >= @mcapFrom"); }
@@ -47,6 +62,7 @@ namespace SimBotUltraSummarizerDb.Dal
                 var queryParams = new
                 {
                     keywords = string.Format("%{0}%", request.Keywords),
+                    address = string.Format("%{0}%", request.Address),
                     startDate = request.StartDate, 
                     endDate = request.EndDate,
                     mcapFrom = request.MCapFrom,
@@ -96,7 +112,7 @@ namespace SimBotUltraSummarizerDb.Dal
 
         public static void LoadSignalData(IEnumerable<Signal> signals)
         {
-            Db.LoadEntities(signals, x => x.Address, addresses => SignalDatas.GetByAddress(addresses), (signal, signalDatas) => signal.SignalData = signalDatas.Where(x => x.Address == signal.Address).ToList());
+            Db.LoadEntities(signals, x => x.Id, ids => SignalDatas.GetBySignalIds(ids), (signal, signalDatas) => signal.SignalData = signalDatas.Where(x => x.SignalId == signal.Id).ToList());
         }
 
         public static void LoadHypeSignals(IEnumerable<Signal> signals)

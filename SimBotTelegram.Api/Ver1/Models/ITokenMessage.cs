@@ -2,7 +2,7 @@
 
 namespace SimBotTelegram.Api.Ver1.Models
 {
-    public class IToken
+    public class ITokenMessage
     {
         [JsonProperty("address")]
         public string Address { get; set; }
