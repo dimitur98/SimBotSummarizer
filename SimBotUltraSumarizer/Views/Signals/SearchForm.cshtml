@@ -8,6 +8,16 @@
         </div>
 
         <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="Address" class="form-label"></label>
+            <input asp-for="Address" class="form-control" title="Search in address" data-bs-toggle="tooltip" data-bs-placement="bottom" />
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="Keywords" class="form-label"></label>
+            <input asp-for="Keywords" class="form-control" title="Search in name" data-bs-toggle="tooltip" data-bs-placement="bottom" />
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
             <label asp-for="StartDate" class="form-label"></label>
             <input asp-for="StartDate" class="form-control" />
             <span asp-validation-for="StartDate"></span>

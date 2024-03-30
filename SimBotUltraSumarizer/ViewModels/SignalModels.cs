@@ -6,6 +6,9 @@ namespace SimBotUltraSummarizer.ViewModels
 {
     public class SignalsSearchFormModel : BaseSearchFormModel
     {
+        [DisplayName("Address")]
+        public string Address { get; set; }
+
         [DisplayName("Start Date")]
         public DateTime? StartDate { get; set; }
 
@@ -34,6 +37,7 @@ namespace SimBotUltraSummarizer.ViewModels
         {
             var request = new Request 
             {
+                Address = this.Address,
                 StartDate = this.StartDate,
                 EndDate = this.EndDate,
                 MCapFrom = this.MCapFrom,

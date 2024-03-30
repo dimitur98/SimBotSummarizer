@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SimBotSummarizer.Helpers.Extensions;
 using SimBotTelegram.Api.Ver1;
@@ -19,140 +20,173 @@ namespace SimBotUltraSummarizer.Controllers.Api
             _hostingEnvironment = hostingEnvironment;
         }
 
+        [AllowAnonymous]
         public IActionResult GetSignals()
         {
-            var response = _simBotTelegramApi.GetSignals();
+            var lastDateSimBot = SignalDatas.GetLastDate();
+            var lastDateHypeBot = HypeSignals.GetLastDate();
+            var lastDateIToken = ITokens.GetLastDate();
 
-            foreach (var item in response)
-            {
-                var signal = new Signal
-                {
-                    Name = item.Name,
-                    Address = item.Address,
-                    Pair = item.Pair,
-                };
+            var signals = _simBotTelegramApi.GetMessages(lastDateSimBot, lastDateHypeBot, lastDateIToken);
 
-                Signals.Insert(signal);
+            this.InsertSimBotSignals(signals.SimBotMessasges);
+            this.InsertHypeSignals(signals.HypeMessages);
+            this.InsertITokenSignals(signals.ITokenMessages);
 
-                if (item.SignalData.HasItems())
-                {
-                    foreach (var item2 in item.SignalData)
-                    {
-                        var signalData = new SignalData
-                        {
-                            Address = item.Address,
-                            MCap = item2.MCap,
-                            TotalCalls = item2.TotalCalls,
-                            SellTax = item2.SellTax,
-                            BuyTax = item2.BuyTax,
-                            Date = item2.Date
-                        };
+            return this.Ok(new {});
+        }
 
-                        SignalDatas.Insert(signalData);
-                    }
-                }
-            }
+        public IActionResult GetSimBotSignals()
+        {
+            var lastDate = SignalDatas.GetLastDate();
+
+            var response = _simBotTelegramApi.GetSimBotMessages(lastDate);
+
+            this.InsertSimBotSignals(response);
 
             return this.Ok();
         }
 
-        public IActionResult LoadSignals()
+        public IActionResult GetHypeSignals()
         {
-            var rootPath = _hostingEnvironment.ContentRootPath; //get the root path
+            var lastDate = HypeSignals.GetLastDate();
 
-            var fullPath = Path.Combine(rootPath, "response.json"); //combine the root path with that of our json file inside mydata directory
+            var response = _simBotTelegramApi.GetHypeMessages(lastDate);
 
-            var jsonData = System.IO.File.ReadAllText(fullPath); //read all the content inside the file
+            this.InsertHypeSignals(response);
 
-            if (string.IsNullOrWhiteSpace(jsonData)) return null; //if no data is present then return null or error if you wish
+            return this.Ok();
+        }
 
-            var signals = JsonConvert.DeserializeObject<List<SimBotTelegram.Api.Ver1.Models.Signal>>(jsonData);
+        public IActionResult GetITokenSignals()
+        {
+            var lastDate = ITokens.GetLastDate();
 
-            foreach (var item in signals)
-            {
-                var signal = new Signal
-                {
-                    Name = item.Name,
-                    Address = item.Address,
-                    Pair = item.Pair,
-                };
+            var response = _simBotTelegramApi.GetITokenMessages(lastDate);
 
-                Signals.Insert(signal);
+            this.InsertITokenSignals(response);
 
-                if (item.SignalData.HasItems())
-                {
-                    foreach (var item2 in item.SignalData)
-                    {
-                        var signalData = new SignalData
-                        {
-                            Address = item.Address,
-                            MCap = item2.MCap,
-                            TotalCalls = item2.TotalCalls,
-                            SellTax = item2.SellTax,
-                            BuyTax = item2.BuyTax,
-                            Date = item2.Date
-                        };
+            return this.Ok();
+        }
 
-                        SignalDatas.Insert(signalData);
-                    }
-                }
-            }
+        public IActionResult LoadSimBotSignals()
+        {
+            var signals = this.LoadJson<List<SimBotTelegram.Api.Ver1.Models.SimBotMessasge>>("response.json");
+
+            this.InsertSimBotSignals(signals);
+
             return this.Ok(new { });
         }
 
         public IActionResult LoadHypeSignals()
         {
-            var rootPath = _hostingEnvironment.ContentRootPath; //get the root path
+            var hypeSignals = this.LoadJson<List<SimBotTelegram.Api.Ver1.Models.HypeMessage>>("response_hype.json");
 
-            var fullPath = Path.Combine(rootPath, "response_hype.json"); //combine the root path with that of our json file inside mydata directory
+            this.InsertHypeSignals(hypeSignals);
 
-            var jsonData = System.IO.File.ReadAllText(fullPath); //read all the content inside the file
-
-            if (string.IsNullOrWhiteSpace(jsonData)) return null; //if no data is present then return null or error if you wish
-
-            var hypeSignals = JsonConvert.DeserializeObject<List<SimBotTelegram.Api.Ver1.Models.HypeSignal>>(jsonData);
-
-            foreach (var item in hypeSignals)
-            {
-                var hypeSignal = new HypeSignal
-                {
-                    Address = item.Address,
-                    MCap = item.MCap,
-                    AlarmType = item.AlarmType,
-                    Date = item.Date,
-                };
-
-                HypeSignals.Insert(hypeSignal);
-            }
-
-            return this.Ok(new {});
+            return this.Ok(new { });
         }
 
         public IActionResult LoadITokenSignals()
         {
-            var rootPath = _hostingEnvironment.ContentRootPath; //get the root path
+            var itokenSignals = this.LoadJson<List<SimBotTelegram.Api.Ver1.Models.ITokenMessage>>("response_itoken.json");
 
-            var fullPath = Path.Combine(rootPath, "response_itoken.json"); //combine the root path with that of our json file inside mydata directory
+            this.InsertITokenSignals(itokenSignals);
 
-            var jsonData = System.IO.File.ReadAllText(fullPath); //read all the content inside the file
+            return this.Ok(new { });
+        }
 
-            if (string.IsNullOrWhiteSpace(jsonData)) return null; //if no data is present then return null or error if you wish
+        private void InsertSimBotSignals(List<SimBotTelegram.Api.Ver1.Models.SimBotMessasge> response)
+        {
+            if (!response.HasItems()) { return; }
 
-            var itokens = JsonConvert.DeserializeObject<List<SimBotTelegram.Api.Ver1.Models.IToken>>(jsonData);
+            var addresses = response.Select(s => s.Address);
+            var signalsDict = Signals.GetByAddress(addresses).ToDictionary(x => x.Address, x => x.Id);
 
-            foreach (var item in itokens)
+            foreach (var item in response)
             {
-                var itoken = new IToken
+                if (!signalsDict.ContainsKey(item.Address.Trim()))
+                {
+                    var signal = new Signal
+                    {
+                        Name = item.Name,
+                        Address = item.Address,
+                        Pair = item.Pair,
+                    };
+
+                    Signals.Insert(signal);
+
+                    signalsDict.Add(signal.Address, signal.Id);
+                }
+
+                if (item.SignalData.HasItems())
+                {
+                    foreach (var item2 in item.SignalData)
+                    {
+                        var signalData = new SignalData
+                        {
+                            SignalId = signalsDict[item.Address],
+                            Address = item.Address,
+                            MCap = item2.MCap,
+                            TotalCalls = item2.TotalCalls,
+                            SellTax = item2.SellTax,
+                            BuyTax = item2.BuyTax,
+                            Price = item2.Price,
+                            Date = item2.Date
+                        };
+
+                        SignalDatas.Insert(signalData);
+                    }
+                }
+            }
+        }
+
+        private void InsertHypeSignals(List<SimBotTelegram.Api.Ver1.Models.HypeMessage> response)
+        {
+            if (!response.HasItems()) { return; }
+
+            foreach (var item in response)
+            {
+                var hypeSingal = new HypeSignal
+                {
+                    Address = item.Address,
+                    MCap = item.MCap,
+                    AlarmType = item.AlarmType,
+                    Date = item.Date
+                };
+
+                HypeSignals.Insert(hypeSingal);
+            }
+        }
+
+        private void InsertITokenSignals(List<SimBotTelegram.Api.Ver1.Models.ITokenMessage> response)
+        {
+            if (!response.HasItems()) { return; }
+
+            foreach (var item in response)
+            {
+                var itokenMessage = new IToken
                 {
                     Address = item.Address,
                     Scan = item.Scan,
                     Date = item.Date
                 };
 
-                ITokens.Insert(itoken);
+                ITokens.Insert(itokenMessage);
             }
+        }
 
-            return this.Ok(new { });
+        private T LoadJson<T>(string fileName)
+        {
+            var rootPath = _hostingEnvironment.ContentRootPath;
+
+            var fullPath = Path.Combine(rootPath, fileName);
+
+            var jsonData = System.IO.File.ReadAllText(fullPath);
+
+            if (string.IsNullOrWhiteSpace(jsonData)) { return default; }
+
+            return JsonConvert.DeserializeObject<T>(jsonData);
         }
     }
 }

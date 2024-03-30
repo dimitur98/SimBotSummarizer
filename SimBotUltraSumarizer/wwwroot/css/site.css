@@ -24,3 +24,13 @@ body {
 .pointer:hover{
     cursor:pointer;
 }
+
+.dextools-container{
+    height:450px;
+}
+
+@media (max-width: 767px) {
+    .dextools-container {
+        height: 300px;
+    }
+}
