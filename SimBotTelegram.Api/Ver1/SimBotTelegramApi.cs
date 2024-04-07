@@ -6,7 +6,7 @@ namespace SimBotTelegram.Api.Ver1
 {
     public class SimBotTelegramApi : JsonWebClient
     {
-        const string URL = "http://127.0.0.1:5051/v1/";
+        const string URL = "http://127.0.0.2:5051/v1/";
 
         public Messages GetMessages(DateTime lastDateSimBot, DateTime lastDateHypeBot, DateTime lastDateIToken, DateTime lastDateEthTracker1, DateTime lastDateEthTracker2)
         {
