@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Signals";
+    ViewBag.FullPageWidth = true;
 }
 
 <script>
@@ -68,6 +69,15 @@
                 }
             });
         });
+        
+        $(".is-scam-checkbox").on("change", function () {
+            $.ajaxGetJson({
+                url: @Html.Raw(Json.Serialize(Url.Action("UpdateScam", "SignalsApi"))),
+                data: { id: $(this).prop("id"), isScam: $(this).prop("checked") },
+                success: function (response, status, xhr) {
+                }
+            });
+        });
     });
 </script>
 
@@ -84,7 +94,9 @@
 
 @if (!Model.Response.Records.HasItems())
 {
-    <alert type="info">There are no signals.</alert>
+    <div class="alert alert-success" role="alert">
+        There are no signals.
+    </div>
 
     return;
 }
@@ -110,6 +122,7 @@
                                 <th scope="col">Name</th>
                                 <th scope="col">Address</th>
                                 <th scope="col">Pair</th>
+                                <th scope="col">Scam</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -117,6 +130,9 @@
                                 <td style="word-break: break-all;">@signal.Name</td>
                                 <td style="word-break: break-all;">@signal.Address</td>
                                 <td style="word-break: break-all;">@signal.Pair</td>
+                                <td>
+                                    <input class="form-check-input is-scam-checkbox" type="checkbox" asp-for="@signal.IsScam" id="@signal.Id">
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -156,8 +172,37 @@
                             </tbody>
                         </table>
                     </div>
-                    @* Hype Alarms *@
+                    @*Eth Tracker, IToken, Hype Alarms*@
                     <div class="col-md-3 col-sm-12" style="max-height: 400px; overflow:auto;">
+                        <h4>Eth Tracker Signals (@signal.EthTrackerSignals.Count())</h4>
+                        @if (signal.EthTrackerSignals.Count() > 0)
+                        {
+                            <table class="table w-auto">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Wallet Name</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var x in signal.EthTrackerSignals)
+                                    {
+                                        <tr>
+                                            <td><a asp-action="Search" asp-controller="EthTrackerWallets" asp-route-id="@x.EthTrackerWalletId">@x.EthTrackerWallet.Name</a></td>
+                                            <td>@x.EthTrackerWallet.EthTrackerType.Name</td>
+                                            <td>@x.Date.ToWebDateFormat(showTime: true)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="alert alert-success" role="alert">
+                                There are no Eth tracking signals for this token.
+                            </div>
+                        }
                         <h4>Hype Alarms (@signal.HypeSignals.Count())</h4>
                         @if (@signal.HypeSignals.Count() > 0)
                         {

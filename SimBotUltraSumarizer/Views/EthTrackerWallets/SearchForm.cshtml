@@ -1,0 +1,33 @@
+﻿@model SimBotUltraSummarizer.ViewModels.EthTrackerWalletsSearchFormModel
+
+<form class="autosubmit mb-3" method="get">
+    <div class="row">
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="Keywords" class="form-label"></label>
+            <input asp-for="Keywords" class="form-control" title="Search in name" data-bs-toggle="tooltip" data-bs-placement="bottom" />
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="EthTrackerTypeId" class="form-label"></label>
+            <select asp-for="EthTrackerTypeId" asp-items="@(new SelectList(Model.EthTrackerTypes, "Id", "Name"))" class="form-select">
+                <option value="">-- Select Type --</option>
+            </select>
+            <span asp-validation-for="EthTrackerTypeId"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label class="h6">&nbsp;</label>
+            <div>
+                <a href="@Url.Action(action: null, controller: null)" class="btn btn btn-outline-info"><i class="fas fa-times"></i></a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(function () {
+        $('form.autosubmit select, form.autosubmit input[type="checkbox"], form.autosubmit input[type="text"], form.autosubmit input[type="number"], form.autosubmit input[type="time"]').on('change', function (event) {
+            $(this).closest('form').submit();
+        });
+    });
+</script>

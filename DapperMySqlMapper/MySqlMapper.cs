@@ -56,6 +56,14 @@ namespace DapperMySqlMapper
             return conn;
         }
 
+        public IEnumerable<dynamic> Query(string sql, object param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            using (var connection = this.GetConnection())
+            {
+                return this.Query(connection, sql, param, transaction, buffered, commandTimeout, commandType);
+            }
+        }
+
         public IEnumerable<dynamic> Query(IDbConnection connection, string sql, dynamic param = null, IDbTransaction transaction = null, bool buffered = true, int? commandTimeout = null, CommandType? commandType = null)
         {
             return SqlMapper.Query(connection, sql, param, transaction, buffered, commandTimeout, commandType);

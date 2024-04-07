@@ -13,7 +13,23 @@
 
 
 <body>
-    <div class="container-fluid">
+    <header id="header" class="mb-3">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="@Url.Action("Search", "Signals", new { area = string.Empty })"><strong id="app-title">AlphaSync</strong></a>
+                <ul class="navbar-nav me-auto"></ul>
+                <ul class="navbar-nav ">
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Search", "Signals", new { area = string.Empty })">Sim Bot Signals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Search", "EthTrackerWallets", new { area = string.Empty })"> Wallets</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div class="@(ViewBag.FullPageWidth == true ? "container-fluid" : "container")" ">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -21,7 +37,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - SimBotUltraSummarizer - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - AlphaSync - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/js/jquery-ajax-json.js?v=@ViewBag.BuildVersion"></script>

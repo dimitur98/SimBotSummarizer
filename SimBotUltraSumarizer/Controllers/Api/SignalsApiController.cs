@@ -20,20 +20,37 @@ namespace SimBotUltraSummarizer.Controllers.Api
             _hostingEnvironment = hostingEnvironment;
         }
 
+        public IActionResult UpdateScam(uint id, bool isScam)
+        {
+            var signal = Signals.GetById(id);
+
+            if (signal == null) { throw new Exception(); }
+
+            signal.IsScam = isScam;
+
+            Signals.Update(signal);
+
+            return this.Ok(new {});
+        }
+
         [AllowAnonymous]
         public IActionResult GetSignals()
         {
             var lastDateSimBot = SignalDatas.GetLastDate();
             var lastDateHypeBot = HypeSignals.GetLastDate();
             var lastDateIToken = ITokens.GetLastDate();
+            var lastDateEthTracker1 = EthTrackerSignals.GetLastDate(EthTrackerTypes.MainAccount);
+            var lastDateEthTracker2 = EthTrackerSignals.GetLastDate(EthTrackerTypes.SecondAccount);
 
-            var signals = _simBotTelegramApi.GetMessages(lastDateSimBot, lastDateHypeBot, lastDateIToken);
+            var signals = _simBotTelegramApi.GetMessages(lastDateSimBot, lastDateHypeBot, lastDateIToken, lastDateEthTracker1, lastDateEthTracker2);
 
             this.InsertSimBotSignals(signals.SimBotMessasges);
             this.InsertHypeSignals(signals.HypeMessages);
             this.InsertITokenSignals(signals.ITokenMessages);
+            this.InsertEthTrackerSignals(signals.EthTrackerMessages1, EthTrackerTypes.MainAccount);
+            this.InsertEthTrackerSignals(signals.EthTrackerMessages2, EthTrackerTypes.SecondAccount);
 
-            return this.Ok(new {});
+            return this.Ok(new { });
         }
 
         public IActionResult GetSimBotSignals()
@@ -101,7 +118,7 @@ namespace SimBotUltraSummarizer.Controllers.Api
             if (!response.HasItems()) { return; }
 
             var addresses = response.Select(s => s.Address);
-            var signalsDict = Signals.GetByAddress(addresses).ToDictionary(x => x.Address, x => x.Id);
+            var signalsDict = Signals.GetByAddresses(addresses).ToDictionary(x => x.Address, x => x.Id);
 
             foreach (var item in response)
             {
@@ -173,6 +190,41 @@ namespace SimBotUltraSummarizer.Controllers.Api
                 };
 
                 ITokens.Insert(itokenMessage);
+            }
+        }
+
+        private void InsertEthTrackerSignals(List<SimBotTelegram.Api.Ver1.Models.EthTrackerMessage> response, uint ethTrackerTypeId)
+        {
+            if (!response.HasItems()) { return; }
+
+            foreach (var item in response)
+            {
+                var walletData = item.WalletData.Split("-");
+                var walletName = walletData[0].Trim();
+                var walletAddress = walletData.Length > 1 ? walletData[1].Trim() : null;
+                var ethTrackerWallet = EthTrackerWallets.Get(walletAddress, walletName, ethTrackerTypeId);
+
+                if (ethTrackerWallet == null)
+                {
+                    ethTrackerWallet = new EthTrackerWallet
+                    {
+                        EthTrackerTypeId = ethTrackerTypeId,
+                        Name = walletName,
+                        Address = walletAddress,
+                        IsActive = true
+                    };
+
+                    EthTrackerWallets.Insert(ethTrackerWallet);
+                }
+
+                var ethTrackerSignal = new EthTrackerSignal
+                {
+                    EthTrackerWalletId = ethTrackerWallet.Id,
+                    Address = item.Address,
+                    Date = item.Date
+                };
+
+                EthTrackerSignals.Insert(ethTrackerSignal);
             }
         }
 

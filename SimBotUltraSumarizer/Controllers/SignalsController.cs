@@ -17,12 +17,16 @@ namespace SimBotUltraSummarizer.Controllers
         protected SignalsSearchModel ExecuteSearch(SignalsSearchFormModel searchForm)
         {
             searchForm.SetDefaultSort("s.id", sortDesc: true);
+            searchForm.EthTrackerWallets = EthTrackerWallets.GetAll();
 
             var response = Signals.Search(searchForm.ToSearchRequest());
 
             Signals.LoadSignalData(response.Records);
             Signals.LoadHypeSignals(response.Records);
             Signals.LoadITokenSignals(response.Records);
+            Signals.LoadEthTrackerSignals(response.Records);
+            EthTrackerSignals.LoadWallets(response.Records.SelectMany(r => r.EthTrackerSignals));
+            EthTrackerWallets.LoadTypes(response.Records.SelectMany(r => r.EthTrackerSignals).Select(x => x.EthTrackerWallet));
 
             var model = new SignalsSearchModel(searchForm)
             {

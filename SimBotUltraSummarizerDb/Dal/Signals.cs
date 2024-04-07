@@ -2,6 +2,7 @@
 using SimBotUltraSummarizerDb.Models.SignalsSearch;
 using SqlQueryBuilder.MySql;
 using System.Data;
+using System.Xml.Linq;
 
 namespace SimBotUltraSummarizerDb.Dal
 {
@@ -14,7 +15,14 @@ namespace SimBotUltraSummarizerDb.Dal
             return Db.Mapper.Query<Signal>(sql).ToList();
         }
 
-        public static List<Signal> GetByAddress(IEnumerable<string> addresses)
+        public static Signal GetById(uint id)
+        {
+            var sql = "SELECT * FROM `signal` WHERE id = @id";
+
+            return Db.Mapper.Query<Signal>(sql, param: new { id }).FirstOrDefault();
+        }
+
+        public static List<Signal> GetByAddresses(IEnumerable<string> addresses)
         {
             var sql = "select * from `signal` where address in @addresses";
 
@@ -42,6 +50,7 @@ namespace SimBotUltraSummarizerDb.Dal
 
             if (!string.IsNullOrEmpty(request.Keywords)) { query.Where.Add("AND (s.name LIKE @keywords)"); }
             if (!string.IsNullOrEmpty(request.Address)) { query.Where.Add("AND (s.address LIKE @address)"); }
+            if (request.EthTrackerWalletId.HasValue) { query.Where.Add(" AND EXISTS(SELECT * FROM eth_tracker_signal ets WHERE ets.eth_tracker_wallet_id = @ethTrackerWalletId AND LOWER(TRIM(ets.address)) = LOWER(TRIM(s.address)))"); }
             if (request.StartDate.HasValue) { query.Where.Add(" AND  sd.date >= @startDate"); }
             if (request.EndDate.HasValue) { query.Where.Add(" AND sd.date <= @endDate"); }
             if (request.MCapFrom.HasValue) { query.Where.Add(" AND sd.mcap >= @mcapFrom"); }
@@ -50,6 +59,8 @@ namespace SimBotUltraSummarizerDb.Dal
             if (request.TotalCallsTo.HasValue) { query.Where.Add(" AND sd.total_calls <= @totalCallsTo"); }
             if (request.HasHypeAlarmSignal.HasValue) { query.Where.Add($" AND {(request.HasHypeAlarmSignal.Value ? string.Empty : "NOT")} EXISTS(SELECT * FROM hype_signal hs WHERE hs.address = s.address)"); }
             if (request.HasITokenSignal.HasValue) { query.Where.Add($" AND {(request.HasITokenSignal.Value ? string.Empty : "NOT")} EXISTS(SELECT * FROM itoken i WHERE i.address = s.address)"); }
+            if (request.HasEthTrackerSignal.HasValue) { query.Where.Add($" AND {(request.HasEthTrackerSignal.Value ? string.Empty : "NOT")} EXISTS(SELECT * FROM eth_tracker_signal ets WHERE ets.address = s.address)"); }
+            if (request.IsScam.HasValue) { query.Where.Add($" AND is_scam = @isScam "); }
 
             query.Joins.Add(" LEFT JOIN signal_data sd ON sd.id = (SELECT sd2.id FROM signal_data as sd2 WHERE sd2.signal_id = s.id ORDER BY sd2.date LIMIT 1)");
 
@@ -63,12 +74,14 @@ namespace SimBotUltraSummarizerDb.Dal
                 {
                     keywords = string.Format("%{0}%", request.Keywords),
                     address = string.Format("%{0}%", request.Address),
+                    ethTrackerWalletId = request.EthTrackerWalletId,
                     startDate = request.StartDate, 
                     endDate = request.EndDate,
                     mcapFrom = request.MCapFrom,
                     mcapTo = request.MCapTo,
                     totalCallsFrom = request.TotalCallsFrom,
-                    totalCallsTo = request.TotalCallsTo
+                    totalCallsTo = request.TotalCallsTo,
+                    isScam = request.IsScam
                 };
 
                 //get TotalRecordsCount
@@ -110,6 +123,21 @@ namespace SimBotUltraSummarizerDb.Dal
             signal.Id = Db.Mapper.Query<uint>(sql, param: queryParams).First();
         }
 
+        public static void Update(Signal signal)
+        {
+            var sql = @"UPDATE `signal` SET
+                    is_scam = @isScam
+                WHERE id = @id";
+
+            var queryParams = new
+            {
+                id = signal.Id,
+                isScam = signal.IsScam
+            };
+
+            Db.Mapper.Execute(sql, param: queryParams);
+        }
+
         public static void LoadSignalData(IEnumerable<Signal> signals)
         {
             Db.LoadEntities(signals, x => x.Id, ids => SignalDatas.GetBySignalIds(ids), (signal, signalDatas) => signal.SignalData = signalDatas.Where(x => x.SignalId == signal.Id).ToList());
@@ -117,12 +145,17 @@ namespace SimBotUltraSummarizerDb.Dal
 
         public static void LoadHypeSignals(IEnumerable<Signal> signals)
         {
-            Db.LoadEntities(signals, x => x.Address, addresses => HypeSignals.GetByAddress(addresses), (signal, hypeSignals) => signal.HypeSignals = hypeSignals.Where(x => x.Address == signal.Address).ToList());
+            Db.LoadEntities(signals, x => x.Address, addresses => HypeSignals.GetByAddresses(addresses), (signal, hypeSignals) => signal.HypeSignals = hypeSignals.Where(x => x.Address == signal.Address).ToList());
         }
 
         public static void LoadITokenSignals(IEnumerable<Signal> signals)
         {
-            Db.LoadEntities(signals, x => x.Address, addresses => ITokens.GetByAddress(addresses), (signal, itokens) => signal.ITokens = itokens.Where(x => x.Address == signal.Address).ToList());
+            Db.LoadEntities(signals, x => x.Address, addresses => ITokens.GetByAddresses(addresses), (signal, itokens) => signal.ITokens = itokens.Where(x => x.Address == signal.Address).ToList());
+        }
+
+        public static void LoadEthTrackerSignals(IEnumerable<Signal> signals)
+        {
+            Db.LoadEntities(signals, x => x.Address, addresses => EthTrackerSignals.GetByAddresses(addresses), (signal, ethTrackerSignals) => signal.EthTrackerSignals = ethTrackerSignals.Where(x => x.Address == signal.Address).ToList());
         }
     }
 }

@@ -12,5 +12,11 @@ namespace SimBotTelegram.Api.Ver1.Models
 
         [JsonProperty("itoken_messages")]
         public List<ITokenMessage> ITokenMessages { get; set; }
+
+        [JsonProperty("eth_tracker_meesages_1")]
+        public List<EthTrackerMessage> EthTrackerMessages1 { get; set; }
+
+        [JsonProperty("eth_tracker_meesages_2")]
+        public List<EthTrackerMessage> EthTrackerMessages2 { get; set; }
     }
 }

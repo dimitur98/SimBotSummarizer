@@ -4,6 +4,8 @@ namespace SimBotUltraSummarizerDb.Models.SignalsSearch
 {
     public class Request : BaseRequest
     {
+        public uint? EthTrackerWalletId { get; set; }
+
         public string Address { get; set; }
 
         public DateTime? StartDate { get; set; }
@@ -21,5 +23,9 @@ namespace SimBotUltraSummarizerDb.Models.SignalsSearch
         public bool? HasHypeAlarmSignal { get; set; }
 
         public bool? HasITokenSignal { get; set; }
+
+        public bool? HasEthTrackerSignal { get; set; }
+
+        public bool? IsScam { get; set; }
     }
 }

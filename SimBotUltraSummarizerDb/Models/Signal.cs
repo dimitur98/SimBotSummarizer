@@ -16,10 +16,15 @@ namespace SimBotUltraSummarizerDb.Models
         [Column(Name = "pair")]
         public string Pair { get; set; }
 
+        [Column(Name = "is_scam")]
+        public bool IsScam { get; set; }
+
         public List<SignalData> SignalData { get; set; }
 
         public List<HypeSignal> HypeSignals { get; set; }
 
         public List<IToken> ITokens { get; set; }
+
+        public List<EthTrackerSignal> EthTrackerSignals { get; set; }
     }
 }

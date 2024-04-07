@@ -1,0 +1,59 @@
+﻿@model SimBotUltraSummarizer.ViewModels.EthTrackerWalletsSearchModel
+
+@{
+    ViewBag.Title = "Wallets";
+}
+
+<h1>@ViewBag.Title (@Model.Response.TotalRecords.ToString("N0"))</h1>
+
+<partial name="SearchForm" model="Model.SearchForm" />
+
+@if (!Model.Response.Records.HasItems())
+{
+    <div class="alert alert-success" role="alert">
+        There are no wallets.
+    </div>
+
+    return;
+}
+
+<div>
+    <div class="d-inline-block me-4">
+        <div class="mb-1">
+            <partial name="_PagedListPagerAndOptionsPartial" model="Model.ToPager(showCreateButton: false)" />
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table w-auto">
+        <thead>
+            <tr>
+                <th scope="col">Wallet Name</th>
+                <th scope="col">Profile</th>
+                <th scope="col">Address</th>
+                <th scope="col">Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var wallet in Model.Response.Records)
+            {
+                <tr>
+                    <td style="word-break: break-all;">@wallet.Name</td>
+                    <td style="word-break: break-all;">@wallet.EthTrackerType.Name</td>
+                    <td style="word-break: break-all;">@wallet.Address</td>
+                    <td style="word-break: break-all;">
+                        <a asp-action="Search" asp-controller="Signals" asp-route-ethTrackerWalletId="@wallet.Id">
+                            <span class="badge badge-primary">
+                                @(Model.EthTrackerWalletSignalsCountDict.ContainsKey(wallet.Id) ? Model.EthTrackerWalletSignalsCountDict[wallet.Id] : 0)
+                            </span>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
+

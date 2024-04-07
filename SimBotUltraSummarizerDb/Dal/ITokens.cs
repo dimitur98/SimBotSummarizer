@@ -11,12 +11,12 @@ namespace SimBotUltraSummarizerDb.Dal
             return Db.Mapper.Query<DateTime>(sql).FirstOrDefault();
         }
 
-        public static List<IToken> GetByAddress(IEnumerable<string> addresses)
+        public static List<IToken> GetByAddresses(IEnumerable<string> addresses)
         {
             var sql = @"SELECT *
                 FROM itoken
                 WHERE address IN @addresses";
-            var a =  Db.Mapper.Query<IToken>(sql, new { addresses }).ToList();
+
             return Db.Mapper.Query<IToken>(sql, new { addresses }).ToList();
         }
 

@@ -13,11 +13,6 @@
         </div>
 
         <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
-            <label asp-for="Keywords" class="form-label"></label>
-            <input asp-for="Keywords" class="form-control" title="Search in name" data-bs-toggle="tooltip" data-bs-placement="bottom" />
-        </div>
-
-        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
             <label asp-for="StartDate" class="form-label"></label>
             <input asp-for="StartDate" class="form-control" />
             <span asp-validation-for="StartDate"></span>
@@ -54,6 +49,18 @@
         </div>
 
         <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="EthTrackerWalletId" class="form-label"></label>
+            <select class="form-select" asp-for="EthTrackerWalletId">
+                <option value="">--</option>
+                @foreach (var item in Model.EthTrackerWallets)
+                {
+                    <option value="@item.Id">@item.Name - @item.EthTrackerType.Name</option>
+                }
+            </select>
+            <span asp-validation-for="EthTrackerWalletId"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
             <label asp-for="HasHypeAlarmSignal" class="form-label"></label>
             <select class="form-select" asp-for="HasHypeAlarmSignal">
                 <option value="">--</option>
@@ -71,6 +78,26 @@
                 <option value="false">No</option>
             </select>
             <span asp-validation-for="HasITokenSignal"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="HasEthTrackerSignal" class="form-label"></label>
+            <select class="form-select" asp-for="HasEthTrackerSignal">
+                <option value="">--</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+            <span asp-validation-for="HasEthTrackerSignal"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="IsScam" class="form-label"></label>
+            <select class="form-select" asp-for="IsScam">
+                <option value="">--</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+            <span asp-validation-for="IsScam"></span>
         </div>
 
         <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
@@ -101,7 +128,7 @@
         });
     });
     $(function () {
-        $('form.autosubmit select, form.autosubmit input[type="checkbox"], form.autosubmit input[type="text"], form.autosubmit input[type="number"], form.autosubmit input[type="time"]').on('change', function (event) {
+        $('form.autosubmit select, form.autosubmit input[type="checkbox"], form.autosubmit input[type="text"], form.autosubmit input[type="number"], form.autosubmit input[type="time"], form.autosubmit input[type="datetime-local"]').on('change', function (event) {
             $(this).closest('form').submit();
         });
     });

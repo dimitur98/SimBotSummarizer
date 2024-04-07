@@ -11,7 +11,7 @@ namespace SimBotUltraSummarizerDb.Dal
             return Db.Mapper.Query<DateTime>(sql).FirstOrDefault();
         }
 
-        public static List<HypeSignal> GetByAddress(IEnumerable<string> addresses)
+        public static List<HypeSignal> GetByAddresses(IEnumerable<string> addresses)
         {
             var sql = @"SELECT *
                 FROM hype_signal
