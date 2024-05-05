@@ -25,13 +25,13 @@ body {
     cursor:pointer;
 }
 
-.dextools-container{
-    height:450px;
+.dex-container{
+    height:550px;
 }
 
 @media (max-width: 767px) {
     .dextools-container {
-        height: 300px;
+        height: 350px;
     }
 }
 

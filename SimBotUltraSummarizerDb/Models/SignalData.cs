@@ -28,7 +28,32 @@ namespace SimBotUltraSummarizerDb.Models
         [Column(Name = "price")]
         public double? Price { get; set; }
 
+        [Column(Name = "method_ids_hash_launched")]
+        public int? MethodIdsHashLaunched { get; set; }
+
+        [Column(Name = "method_ids_hash_rugged")]
+        public int? MethodIdsHashRugged { get; set; }
+
+        public double MethodIdsPercent => this.MethodIdsHashLaunched == 0 || !this.MethodIdsHashRugged.HasValue || !this.MethodIdsHashLaunched.HasValue ? 0 :((double)this.MethodIdsHashRugged.Value / (double)this.MethodIdsHashLaunched.Value);
+
+        [Column(Name = "functions_text_launched")]
+        public int? FunctionsTextLaunched { get; set; }
+
+        [Column(Name = "functions_text_rugged")]
+        public int? FunctionsTextRugged { get; set; }
+
+        public double FunctionsTextPercent => this.FunctionsTextLaunched == 0 || !this.FunctionsTextRugged.HasValue || !this.FunctionsTextLaunched.HasValue ? 0 : ((double)this.FunctionsTextRugged.Value / (double)this.FunctionsTextLaunched.Value);
+
+        [Column(Name = "clog")]
+        public double? Clog { get; set; }
+
+        [Column(Name = "is_trending")]
+        public bool IsTrending { get; set; }
+
         [Column(Name = "date")]
         public DateTime Date { get; set; }
+
+        [Column(Name = "edited_at")]
+        public DateTime? EditedAt { get; set; }
     }
 }

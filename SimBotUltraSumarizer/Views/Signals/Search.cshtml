@@ -137,16 +137,16 @@
                         </tbody>
                     </table>
                 </div>
-                @* Dextools *@
+                @* Dexscreener *@
                 <div class="row">
-                    <div class="col-md-6 col-sm-12 dextools-container">
-                        <iframe class="dextools-widget"
-                                title="DEXTools Trading Chart"
-                                width="100%" height="100%"
-                                src="https://www.dextools.io/widget-chart/en/ether/pe-light/@signal.Pair?theme=dark&chartType=1&chartResolution=30&drawingToolbars=true"></iframe>
+                    <div class="col-md-12 col-sm-12 dex-container mb-3 ">
+                        <iframe width="100%" height="100%" src="https://dexscreener.com/ethereum/@signal.Address?embed=1&theme=dark&trades=0"></iframe>
                     </div>
+
+                    <hr>
+
                     @* Signals *@
-                    <div class="col-md-3 col-sm-12" style="max-height: 400px; overflow:auto;">
+                    <div class="col-md-8 col-sm-12" style="max-height: 400px; overflow:auto;">
                         <h4>Signal Data (@signal.SignalData.Count())</h4>
                         <table class="table w-auto">
                             <thead>
@@ -155,6 +155,14 @@
                                     <th scope="col">Total Calls</th>
                                     <th scope="col">Sell Tax</th>
                                     <th scope="col">Buy Tax</th>
+                                    <th scope="col">Method Ids Launched</th>
+                                    <th scope="col">Method Ids Rugged</th>
+                                    <th scope="col">Method Ids %</th>
+                                    <th scope="col">Functions Text Launched</th>
+                                    <th scope="col">Functions Text Rugged</th>
+                                    <th scope="col">Functions Text %</th>
+                                    <th scope="col">Clog %</th>
+                                    <th scope="col">Is Thrending</th>
                                     <th scope="col">Date</th>
                                 </tr>
                             </thead>
@@ -164,8 +172,16 @@
                                     <tr>
                                         <td>@signalData.MCap</td>
                                         <td>@signalData.TotalCalls</td>
-                                        <td>@signalData.SellTax</td>
-                                        <td>@signalData.BuyTax</td>
+                                        <td>@signalData.SellTax?.ToString("N2")</td>
+                                        <td>@signalData.BuyTax?.ToString("N2")</td>
+                                        <td>@signalData.MethodIdsHashLaunched</td>
+                                        <td>@signalData.MethodIdsHashRugged</td>
+                                        <td>@signalData.MethodIdsPercent.ToString("P2")</td>
+                                        <td>@signalData.FunctionsTextLaunched</td>
+                                        <td>@signalData.FunctionsTextRugged</td>
+                                        <td>@signalData.FunctionsTextPercent.ToString("P2")</td>
+                                        <td>@(signalData.Clog.HasValue ? signalData.Clog.Value.ToString("P2") : "-")</td>
+                                        <td>@(signalData.IsTrending ? "Yes" : "No")</td>
                                         <td>@signalData.Date.ToWebDateFormat(showTime: true)</td>
                                     </tr>
                                 }
@@ -173,7 +189,7 @@
                         </table>
                     </div>
                     @*Eth Tracker, IToken, Hype Alarms*@
-                    <div class="col-md-3 col-sm-12" style="max-height: 400px; overflow:auto;">
+                    <div class="col-md-4 col-sm-12" style="max-height: 400px; overflow:auto;">
                         <h4>Eth Tracker Signals (@signal.EthTrackerSignals.Count())</h4>
                         @if (signal.EthTrackerSignals.Count() > 0)
                         {

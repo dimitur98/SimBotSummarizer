@@ -16,7 +16,7 @@ namespace SimBotUltraSummarizerDb.Dal
             var sql = @"SELECT *
                 FROM signal_data
                 WHERE signal_id IN @signalIds
-                ORDER BY `date`";
+                ORDER BY `date` DESC";
 
             return Db.Mapper.Query<SignalData>(sql, new { signalIds }).ToList();
         }

@@ -101,6 +101,18 @@
         </div>
 
         <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
+            <label asp-for="UserId" class="form-label"></label>
+            <select class="form-select" asp-for="UserId">
+                <option value="">--</option>
+                @foreach (var filter in Model.Filters)
+                {
+                    <option value="@filter.UserId">@(string.IsNullOrEmpty(filter.Name) ? filter.UserId : filter.Name)</option>
+                }
+            </select>
+            <span asp-validation-for="UserId"></span>
+        </div>
+
+        <div class="col-sm-4 col-md-auto mb-2 pr-sm-0">
             <label class="h6">&nbsp;</label>
             <div>
                 <a href="@Url.Action(action: null, controller: null)" class="btn btn btn-outline-info"><i class="fas fa-times"></i></a>

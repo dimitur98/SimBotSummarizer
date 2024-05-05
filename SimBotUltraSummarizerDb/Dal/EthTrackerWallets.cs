@@ -13,7 +13,7 @@ namespace SimBotUltraSummarizerDb.Dal
             {
                 Select = new List<string>() { "etw.*" },
                 From = "`eth_tracker_wallet` AS etw",
-                Where = new List<string>() { "1 = 1" },
+                Where = new List<string>() { "etw.is_active = TRUE" },
                 Joins = new List<string>()
             };
 

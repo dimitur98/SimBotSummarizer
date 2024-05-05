@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SimBotUltraSummarizer</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="/lib/bootstrap-5.3.1-dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SimBotUltraSummarizer.styles.css" asp-append-version="true" />
     <link href="~/fonts/fontawesome-6.5.1/css/all.min.css" rel="stylesheet" />
@@ -40,9 +40,10 @@
             &copy; 2024 - AlphaSync - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-    <script src="~/js/jquery-ajax-json.js?v=@ViewBag.BuildVersion"></script>
+    <script src="/js/jquery-ajax-json.js?v=@ViewBag.BuildVersion"></script>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/lib/popper-2.11.8/popper.min.js"></script>
+    <script src="/lib/bootstrap-5.3.1-dist/js/bootstrap.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/jquery-ajax-json.js"></script>
     <script src="~/lib/vuejs-3.2.47/vue.global.js"></script>

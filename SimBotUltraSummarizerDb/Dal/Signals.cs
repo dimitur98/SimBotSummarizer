@@ -61,6 +61,7 @@ namespace SimBotUltraSummarizerDb.Dal
             if (request.HasITokenSignal.HasValue) { query.Where.Add($" AND {(request.HasITokenSignal.Value ? string.Empty : "NOT")} EXISTS(SELECT * FROM itoken i WHERE i.address = s.address)"); }
             if (request.HasEthTrackerSignal.HasValue) { query.Where.Add($" AND {(request.HasEthTrackerSignal.Value ? string.Empty : "NOT")} EXISTS(SELECT * FROM eth_tracker_signal ets WHERE ets.address = s.address)"); }
             if (request.IsScam.HasValue) { query.Where.Add($" AND is_scam = @isScam "); }
+            if (request.UserId.HasValue) { query.Where.Add(" ANd EXISTS(SELECT * FROM user_signal us WHERE us.signal_address = s.address AND us.user_id = @userId AND us.is_sent = 1 AND us.is_active = 1 )"); }
 
             query.Joins.Add(" LEFT JOIN signal_data sd ON sd.id = (SELECT sd2.id FROM signal_data as sd2 WHERE sd2.signal_id = s.id ORDER BY sd2.date LIMIT 1)");
 
@@ -81,7 +82,8 @@ namespace SimBotUltraSummarizerDb.Dal
                     mcapTo = request.MCapTo,
                     totalCallsFrom = request.TotalCallsFrom,
                     totalCallsTo = request.TotalCallsTo,
-                    isScam = request.IsScam
+                    isScam = request.IsScam,
+                    userId = request.UserId
                 };
 
                 //get TotalRecordsCount

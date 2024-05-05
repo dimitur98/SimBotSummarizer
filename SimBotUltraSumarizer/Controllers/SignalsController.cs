@@ -16,8 +16,9 @@ namespace SimBotUltraSummarizer.Controllers
 
         protected SignalsSearchModel ExecuteSearch(SignalsSearchFormModel searchForm)
         {
-            searchForm.SetDefaultSort("s.id", sortDesc: true);
+            searchForm.SetDefaultSort("s.edited_at", sortDesc: true);
             searchForm.EthTrackerWallets = EthTrackerWallets.GetAll();
+            searchForm.Filters = Filters.GetAll();
 
             var response = Signals.Search(searchForm.ToSearchRequest());
 

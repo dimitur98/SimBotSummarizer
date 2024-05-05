@@ -27,5 +27,7 @@ namespace SimBotUltraSummarizerDb.Models.SignalsSearch
         public bool? HasEthTrackerSignal { get; set; }
 
         public bool? IsScam { get; set; }
+
+        public uint? UserId { get; set; }
     }
 }

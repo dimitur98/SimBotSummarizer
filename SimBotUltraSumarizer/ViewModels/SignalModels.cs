@@ -44,6 +44,10 @@ namespace SimBotUltraSummarizer.ViewModels
         [DisplayName("Scam")]
         public bool? IsScam { get; set; }
 
+        [DisplayName("User")]
+        public uint? UserId { get; set; }
+        public List<Filter> Filters { get; set; }
+
         public Request ToSearchRequest()
         {
             var request = new Request 
@@ -59,7 +63,8 @@ namespace SimBotUltraSummarizer.ViewModels
                 HasHypeAlarmSignal = this.HasHypeAlarmSignal,
                 HasITokenSignal = this.HasITokenSignal,
                 HasEthTrackerSignal = this.HasEthTrackerSignal,
-                IsScam = this.IsScam
+                IsScam = this.IsScam,
+                UserId = this.UserId
             };
 
             this.SetSearchRequest(request);
